@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import CrosswalkTab from './components/CrosswalkTab'
-import SummariesTab from './components/SummariesTab'
-import QueryTab from './components/QueryTab'
+import CrosswalkTab from './CrosswalkTab'
+import SummariesTab from './SummariesTab'
+import QueryTab from './QueryTab'
 
 const TABS = ['Crosswalk', 'Summaries', 'Query']
 
@@ -13,7 +13,7 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: 32,
-    boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
   },
   logo: {
     fontSize: 18,
