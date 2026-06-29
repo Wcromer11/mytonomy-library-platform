@@ -13,7 +13,7 @@ function normalize(str = '') {
     .trim()
 }
 
-function parseCSV(file) {
+function parseCSV(file) 
   return new Promise((resolve, reject) => {
     Papa.parse(file, {
       header: true,
@@ -189,9 +189,12 @@ export default function CrosswalkTab({ apiKey }) {
   const [filterType, setFilterType] = useState('All')
   const [error, setError] = useState('')
 
-  const loadFile = async (file, setter) => {
+  const loadFile = async (file, setter, setCol) => {
     const parsed = await parseCSV(file)
     setter({ name: file.name, data: parsed.data, headers: parsed.meta.fields })
+        const fields = parsed.meta.fields
+            const titleCol = fields.find(h => /title/i.test(h)) || fields.find(h => /name/i.test(h))
+                if (titleCol && setCol) setCol(titleCol)
   }
 
   const getFilteredRows = (lib, col, filterCol, filterVal) => {
@@ -306,7 +309,7 @@ export default function CrosswalkTab({ apiKey }) {
           <div style={s.col}>
             <label style={s.label}>Library A (e.g., Health Nuts)</label>
             <label style={{ ...s.uploadBox, borderColor: libA ? '#22c55e' : '#cbd5e1' }}>
-              <input type="file" accept=".csv,.xlsx" style={{ display: 'none' }} onChange={e => e.target.files[0] && loadFile(e.target.files[0], setLibA)} />
+              <input type="file" accept=".csv,.xlsx" style={{ display: 'none' }} onChange={e => e.target.files[0] && loadFile(e.target.files[0], setLibA, setColA)} />
               {libA ? `✓ ${libA.name} (${libA.data.length} rows)` : 'Click to upload CSV / XLSX'}
             </label>
             {libA && (
@@ -332,7 +335,7 @@ export default function CrosswalkTab({ apiKey }) {
           <div style={s.col}>
             <label style={s.label}>Library B (e.g., Mytonomy)</label>
             <label style={{ ...s.uploadBox, borderColor: libB ? '#22c55e' : '#cbd5e1' }}>
-              <input type="file" accept=".csv,.xlsx" style={{ display: 'none' }} onChange={e => e.target.files[0] && loadFile(e.target.files[0], setLibB)} />
+              <input type="file" accept=".csv,.xlsx" style={{ display: 'none' }} onChange={e => e.target.files[0] && loadFile(e.target.files[0], setLibB, setColB)} />
               {libB ? `✓ ${libB.name} (${libB.data.length} rows)` : 'Click to upload CSV / XLSX'}
             </label>
             {libB && (
