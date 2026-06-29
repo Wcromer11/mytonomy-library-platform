@@ -13,7 +13,7 @@ function normalize(str = '') {
     .trim()
 }
 
-function parseCSV(file) 
+function parseCSV(file)  {
   return new Promise((resolve, reject) => {
     Papa.parse(file, {
       header: true,
