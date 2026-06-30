@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react'
 import Papa from 'papaparse'
+import * as XLSX from 'xlsx'
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -13,7 +14,7 @@ function normalize(str = '') {
     .trim()
 }
 
-function parseCSV(file)  {
+function parseCSV(file) {
   return new Promise((resolve, reject) => {
     Papa.parse(file, {
       header: true,
@@ -21,6 +22,25 @@ function parseCSV(file)  {
       complete: r => resolve(r),
       error: reject,
     })
+  })
+}
+
+function parseXLSX(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      try {
+        const workbook = XLSX.read(e.target.result, { type: 'array' })
+        const sheet = workbook.Sheets[workbook.SheetNames[0]]
+        const data = XLSX.utils.sheet_to_json(sheet, { defval: '' })
+        const fields = data.length > 0 ? Object.keys(data[0]) : []
+        resolve({ data, meta: { fields } })
+      } catch (err) {
+        reject(err)
+      }
+    }
+    reader.onerror = reject
+    reader.readAsArrayBuffer(file)
   })
 }
 
@@ -190,11 +210,12 @@ export default function CrosswalkTab({ apiKey }) {
   const [error, setError] = useState('')
 
   const loadFile = async (file, setter, setCol) => {
-    const parsed = await parseCSV(file)
+    const isXlsx = file.name.match(/\.xlsx?$/i)
+    const parsed = isXlsx ? await parseXLSX(file) : await parseCSV(file)
     setter({ name: file.name, data: parsed.data, headers: parsed.meta.fields })
-        const fields = parsed.meta.fields
-            const titleCol = fields.find(h => /title/i.test(h)) || fields.find(h => /name/i.test(h))
-                if (titleCol && setCol) setCol(titleCol)
+    const fields = parsed.meta.fields
+    const titleCol = fields.find(h => /title/i.test(h)) || fields.find(h => /name/i.test(h))
+    if (titleCol && setCol) setCol(titleCol)
   }
 
   const getFilteredRows = (lib, col, filterCol, filterVal) => {
